@@ -14,7 +14,80 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      project_likes: {
+        Row: {
+          created_at: string
+          id: string
+          project_id: string
+          visitor_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          project_id: string
+          visitor_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          project_id?: string
+          visitor_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "project_likes_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "projects"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      projects: {
+        Row: {
+          builder_name: string
+          category: string
+          cover_path: string
+          created_at: string
+          demo_url: string | null
+          description: string
+          github_url: string | null
+          id: string
+          likes_count: number
+          media_kind: string | null
+          media_path: string | null
+          name: string
+        }
+        Insert: {
+          builder_name: string
+          category: string
+          cover_path: string
+          created_at?: string
+          demo_url?: string | null
+          description: string
+          github_url?: string | null
+          id?: string
+          likes_count?: number
+          media_kind?: string | null
+          media_path?: string | null
+          name: string
+        }
+        Update: {
+          builder_name?: string
+          category?: string
+          cover_path?: string
+          created_at?: string
+          demo_url?: string | null
+          description?: string
+          github_url?: string | null
+          id?: string
+          likes_count?: number
+          media_kind?: string | null
+          media_path?: string | null
+          name?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
