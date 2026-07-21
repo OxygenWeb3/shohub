@@ -42,12 +42,16 @@ function Submit() {
     setSubmitting(true);
     try {
       const { path: cover_path } = await uploadAsset("covers", cover);
+      toast.success("Cover image uploaded to Shelby.");
       let media_path: string | null = null;
       let media_kind: "video" | "pdf" | null = null;
       if (media) {
         const up = await uploadAsset("media", media);
         media_path = up.path;
         media_kind = media.type.startsWith("video/") ? "video" : "pdf";
+        toast.success(
+          `${media_kind === "video" ? "Demo video" : "PDF"} uploaded to Shelby.`,
+        );
       }
 
       const { data, error } = await supabase
