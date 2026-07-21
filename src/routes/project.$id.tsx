@@ -56,6 +56,7 @@ function ProjectDetails() {
           alt={project.name}
           className="aspect-[16/9] w-full rounded-3xl"
           showBadge
+          onLoadError={handleCoverError}
         />
 
         <div className="mt-8 flex flex-wrap items-start justify-between gap-4">
