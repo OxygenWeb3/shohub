@@ -1,5 +1,7 @@
 import { createFileRoute, Link, notFound } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
+import { useCallback } from "react";
+import { toast } from "sonner";
 import { ArrowLeft, Github, ExternalLink } from "lucide-react";
 import { SiteHeader } from "@/components/SiteHeader";
 import { AssetImage } from "@/components/AssetImage";
