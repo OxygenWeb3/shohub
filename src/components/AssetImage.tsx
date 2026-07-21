@@ -8,12 +8,14 @@ export function AssetImage({
   alt,
   className,
   showBadge = false,
+  onLoadError,
 }: {
   bucket: Bucket;
   path: string;
   alt: string;
   className?: string;
   showBadge?: boolean;
+  onLoadError?: (reason: "url" | "image") => void;
 }) {
   const [url, setUrl] = useState<string | null>(null);
   const [loaded, setLoaded] = useState(false);
@@ -25,11 +27,13 @@ export function AssetImage({
       .then((u) => {
         if (!cancelled) setUrl(u);
       })
-      .catch(() => {});
+      .catch(() => {
+        if (!cancelled) onLoadError?.("url");
+      });
     return () => {
       cancelled = true;
     };
-  }, [bucket, path]);
+  }, [bucket, path, onLoadError]);
 
   return (
     <div className={`relative overflow-hidden bg-blue-50/40 ${className ?? ""}`}>
@@ -38,6 +42,7 @@ export function AssetImage({
           src={url}
           alt={alt}
           onLoad={() => setLoaded(true)}
+          onError={() => onLoadError?.("image")}
           className={`h-full w-full object-cover transition-opacity duration-300 ${
             loaded ? "opacity-100" : "opacity-0"
           }`}
