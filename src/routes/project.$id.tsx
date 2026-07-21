@@ -1,5 +1,7 @@
 import { createFileRoute, Link, notFound } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
+import { useCallback } from "react";
+import { toast } from "sonner";
 import { ArrowLeft, Github, ExternalLink } from "lucide-react";
 import { SiteHeader } from "@/components/SiteHeader";
 import { AssetImage } from "@/components/AssetImage";
@@ -22,6 +24,10 @@ export const Route = createFileRoute("/project/$id")({
 function ProjectDetails() {
   const { id } = Route.useParams();
   const { data: project, isLoading, error } = useQuery(projectQueryOptions(id));
+
+  const handleCoverError = useCallback(() => {
+    toast.error("Cover image failed to load from Shelby.");
+  }, []);
 
   if (isLoading) {
     return (
@@ -50,6 +56,7 @@ function ProjectDetails() {
           alt={project.name}
           className="aspect-[16/9] w-full rounded-3xl"
           showBadge
+          onLoadError={handleCoverError}
         />
 
         <div className="mt-8 flex flex-wrap items-start justify-between gap-4">
