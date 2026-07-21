@@ -25,6 +25,10 @@ function ProjectDetails() {
   const { id } = Route.useParams();
   const { data: project, isLoading, error } = useQuery(projectQueryOptions(id));
 
+  const handleCoverError = useCallback(() => {
+    toast.error("Cover image failed to load from Shelby.");
+  }, []);
+
   if (isLoading) {
     return (
       <div className="min-h-screen bg-background">
