@@ -41,14 +41,32 @@ function Submit() {
     }
     setSubmitting(true);
     try {
-      const { path: cover_path } = await uploadAsset("covers", cover);
+      let cover_path: string;
+      try {
+        ({ path: cover_path } = await uploadAsset("covers", cover));
+      } catch (err) {
+        console.error(err);
+        toast.error("Cover image failed to upload to Shelby. Please try again.");
+        setSubmitting(false);
+        return;
+      }
       toast.success("Cover image uploaded to Shelby.");
       let media_path: string | null = null;
       let media_kind: "video" | "pdf" | null = null;
       if (media) {
-        const up = await uploadAsset("media", media);
-        media_path = up.path;
-        media_kind = media.type.startsWith("video/") ? "video" : "pdf";
+        const kind: "video" | "pdf" = media.type.startsWith("video/") ? "video" : "pdf";
+        try {
+          const up = await uploadAsset("media", media);
+          media_path = up.path;
+          media_kind = kind;
+        } catch (err) {
+          console.error(err);
+          toast.error(
+            `${kind === "video" ? "Demo video" : "PDF"} failed to upload to Shelby. Please try again.`,
+          );
+          setSubmitting(false);
+          return;
+        }
         toast.success(
           `${media_kind === "video" ? "Demo video" : "PDF"} uploaded to Shelby.`,
         );
