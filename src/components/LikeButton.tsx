@@ -29,10 +29,12 @@ export function LikeButton({
     onSuccess: () => {
       markLiked(projectId);
       qc.invalidateQueries({ queryKey: ["projects"] });
+      toast.success("Thanks for the like!");
     },
     onError: () => {
       setLiked(false);
       setOptimistic((c) => c - 1);
+      toast.error("Couldn't save your like. Please try again.");
     },
   });
 
