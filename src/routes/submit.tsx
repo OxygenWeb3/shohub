@@ -29,10 +29,40 @@ function Submit() {
   const [cover, setCover] = useState<File | null>(null);
   const [media, setMedia] = useState<File | null>(null);
 
+  const handleCoverChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0] ?? null;
+    if (file && !COVER_TYPES.includes(file.type)) {
+      toast.error("Unsupported cover format. Use JPG, PNG, WEBP, or GIF.");
+      e.target.value = "";
+      setCover(null);
+      return;
+    }
+    setCover(file);
+  };
+
+  const handleMediaChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0] ?? null;
+    if (file && !file.type.startsWith("video/") && file.type !== "application/pdf") {
+      toast.error("Unsupported demo file. Upload a video or PDF.");
+      e.target.value = "";
+      setMedia(null);
+      return;
+    }
+    setMedia(file);
+  };
+
   const submit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!cover) {
       toast.error("Please upload a cover image.");
+      return;
+    }
+    if (!COVER_TYPES.includes(cover.type)) {
+      toast.error("Unsupported cover format. Use JPG, PNG, WEBP, or GIF.");
+      return;
+    }
+    if (media && !media.type.startsWith("video/") && media.type !== "application/pdf") {
+      toast.error("Unsupported demo file. Upload a video or PDF.");
       return;
     }
     if (desc.length > 120) {
