@@ -7,6 +7,8 @@ import { supabase } from "@/integrations/supabase/client";
 import { uploadAsset } from "@/lib/storage";
 import { CATEGORIES, type Category } from "@/lib/queries";
 
+const COVER_TYPES = ["image/jpeg", "image/png", "image/webp", "image/gif"];
+
 export const Route = createFileRoute("/submit")({
   head: () => ({
     meta: [
@@ -29,10 +31,40 @@ function Submit() {
   const [cover, setCover] = useState<File | null>(null);
   const [media, setMedia] = useState<File | null>(null);
 
+  const handleCoverChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0] ?? null;
+    if (file && !COVER_TYPES.includes(file.type)) {
+      toast.error("Unsupported cover format. Use JPG, PNG, WEBP, or GIF.");
+      e.target.value = "";
+      setCover(null);
+      return;
+    }
+    setCover(file);
+  };
+
+  const handleMediaChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0] ?? null;
+    if (file && !file.type.startsWith("video/") && file.type !== "application/pdf") {
+      toast.error("Unsupported demo file. Upload a video or PDF.");
+      e.target.value = "";
+      setMedia(null);
+      return;
+    }
+    setMedia(file);
+  };
+
   const submit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!cover) {
       toast.error("Please upload a cover image.");
+      return;
+    }
+    if (!COVER_TYPES.includes(cover.type)) {
+      toast.error("Unsupported cover format. Use JPG, PNG, WEBP, or GIF.");
+      return;
+    }
+    if (media && !media.type.startsWith("video/") && media.type !== "application/pdf") {
+      toast.error("Unsupported demo file. Upload a video or PDF.");
       return;
     }
     if (desc.length > 120) {
@@ -162,8 +194,8 @@ function Submit() {
             <input
               required
               type="file"
-              accept="image/*"
-              onChange={(e) => setCover(e.target.files?.[0] ?? null)}
+              accept="image/jpeg,image/png,image/webp,image/gif"
+              onChange={handleCoverChange}
               className={fileInput}
             />
           </Field>
@@ -171,7 +203,7 @@ function Submit() {
             <input
               type="file"
               accept="video/*,application/pdf"
-              onChange={(e) => setMedia(e.target.files?.[0] ?? null)}
+              onChange={handleMediaChange}
               className={fileInput}
             />
           </Field>
