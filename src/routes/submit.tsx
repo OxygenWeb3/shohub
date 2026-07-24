@@ -194,8 +194,8 @@ function Submit() {
             <input
               required
               type="file"
-              accept="image/*"
-              onChange={(e) => setCover(e.target.files?.[0] ?? null)}
+              accept="image/jpeg,image/png,image/webp,image/gif"
+              onChange={handleCoverChange}
               className={fileInput}
             />
           </Field>
@@ -203,7 +203,7 @@ function Submit() {
             <input
               type="file"
               accept="video/*,application/pdf"
-              onChange={(e) => setMedia(e.target.files?.[0] ?? null)}
+              onChange={handleMediaChange}
               className={fileInput}
             />
           </Field>
