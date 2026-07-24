@@ -7,6 +7,8 @@ import { supabase } from "@/integrations/supabase/client";
 import { uploadAsset } from "@/lib/storage";
 import { CATEGORIES, type Category } from "@/lib/queries";
 
+const COVER_TYPES = ["image/jpeg", "image/png", "image/webp", "image/gif"];
+
 export const Route = createFileRoute("/submit")({
   head: () => ({
     meta: [
