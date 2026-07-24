@@ -89,10 +89,11 @@ function Submit() {
         .single();
       if (error) throw error;
       toast.success("Your project assets are stored on Shelby.");
+      toast.success("Project published successfully!");
       navigate({ to: "/project/$id", params: { id: data.id } });
     } catch (err) {
       console.error(err);
-      toast.error("Something went wrong. Please try again.");
+      toast.error("Failed to publish project. Please try again.");
     } finally {
       setSubmitting(false);
     }
