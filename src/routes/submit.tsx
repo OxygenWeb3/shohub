@@ -79,8 +79,16 @@ function Submit() {
       toast.error("Unsupported cover format. Use JPG, PNG, WEBP, or GIF.");
       return;
     }
+    if (cover.size > COVER_MAX_BYTES) {
+      toast.error(`Cover image is too large. Max size is ${formatMB(COVER_MAX_BYTES)}.`);
+      return;
+    }
     if (media && !media.type.startsWith("video/") && media.type !== "application/pdf") {
       toast.error("Unsupported demo file. Upload a video or PDF.");
+      return;
+    }
+    if (media && media.size > MEDIA_MAX_BYTES) {
+      toast.error(`Demo file is too large. Max size is ${formatMB(MEDIA_MAX_BYTES)}.`);
       return;
     }
     if (desc.length > 120) {
