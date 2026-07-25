@@ -235,6 +235,7 @@ function Submit() {
               onChange={handleCoverChange}
               className={fileInput}
             />
+            <UploadProgress label="Cover" progress={coverProgress} />
           </Field>
           <Field label="Demo video or PDF (optional)" hint={`Max ${formatMB(MEDIA_MAX_BYTES)}`}>
             <input
@@ -243,6 +244,7 @@ function Submit() {
               onChange={handleMediaChange}
               className={fileInput}
             />
+            <UploadProgress label="Demo" progress={mediaProgress} />
           </Field>
 
           {(cover || media) && (
