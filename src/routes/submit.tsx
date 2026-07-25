@@ -34,6 +34,8 @@ function Submit() {
   const [demo, setDemo] = useState("");
   const [cover, setCover] = useState<File | null>(null);
   const [media, setMedia] = useState<File | null>(null);
+  const [coverProgress, setCoverProgress] = useState<number | null>(null);
+  const [mediaProgress, setMediaProgress] = useState<number | null>(null);
 
   const handleCoverChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0] ?? null;
