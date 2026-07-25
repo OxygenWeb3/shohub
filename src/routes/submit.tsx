@@ -296,3 +296,29 @@ function Field({
     </label>
   );
 }
+
+function UploadProgress({ label, progress }: { label: string; progress: number | null }) {
+  if (progress === null) return null;
+  const pct = Math.round(progress * 100);
+  const done = progress >= 1;
+  return (
+    <div className="mt-2" aria-live="polite">
+      <div className="mb-1 flex items-center justify-between text-xs text-muted-foreground">
+        <span>{done ? `${label} uploaded to Shelby` : `Uploading ${label.toLowerCase()}…`}</span>
+        <span className="tabular-nums">{pct}%</span>
+      </div>
+      <div
+        role="progressbar"
+        aria-valuemin={0}
+        aria-valuemax={100}
+        aria-valuenow={pct}
+        className="h-1.5 w-full overflow-hidden rounded-full bg-blue-100"
+      >
+        <div
+          className="h-full rounded-full bg-primary transition-[width] duration-150 ease-out"
+          style={{ width: `${pct}%` }}
+        />
+      </div>
+    </div>
+  );
+}
