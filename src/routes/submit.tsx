@@ -43,6 +43,12 @@ function Submit() {
       setCover(null);
       return;
     }
+    if (file && file.size > COVER_MAX_BYTES) {
+      toast.error(`Cover image is too large. Max size is ${formatMB(COVER_MAX_BYTES)}.`);
+      e.target.value = "";
+      setCover(null);
+      return;
+    }
     setCover(file);
   };
 
@@ -50,6 +56,12 @@ function Submit() {
     const file = e.target.files?.[0] ?? null;
     if (file && !file.type.startsWith("video/") && file.type !== "application/pdf") {
       toast.error("Unsupported demo file. Upload a video or PDF.");
+      e.target.value = "";
+      setMedia(null);
+      return;
+    }
+    if (file && file.size > MEDIA_MAX_BYTES) {
+      toast.error(`Demo file is too large. Max size is ${formatMB(MEDIA_MAX_BYTES)}.`);
       e.target.value = "";
       setMedia(null);
       return;
