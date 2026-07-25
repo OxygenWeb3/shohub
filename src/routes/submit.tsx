@@ -8,6 +8,10 @@ import { uploadAsset } from "@/lib/storage";
 import { CATEGORIES, type Category } from "@/lib/queries";
 
 const COVER_TYPES = ["image/jpeg", "image/png", "image/webp", "image/gif"];
+const MB = 1024 * 1024;
+const COVER_MAX_BYTES = 8 * MB;
+const MEDIA_MAX_BYTES = 100 * MB;
+const formatMB = (bytes: number) => `${Math.round(bytes / MB)} MB`;
 
 export const Route = createFileRoute("/submit")({
   head: () => ({
