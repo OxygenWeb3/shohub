@@ -214,7 +214,7 @@ function Submit() {
               />
             </Field>
           </div>
-          <Field label="Cover image" required>
+          <Field label="Cover image" hint={`Max ${formatMB(COVER_MAX_BYTES)}`} required>
             <input
               required
               type="file"
@@ -223,7 +223,7 @@ function Submit() {
               className={fileInput}
             />
           </Field>
-          <Field label="Demo video or PDF (optional)">
+          <Field label="Demo video or PDF (optional)" hint={`Max ${formatMB(MEDIA_MAX_BYTES)}`}>
             <input
               type="file"
               accept="video/*,application/pdf"
