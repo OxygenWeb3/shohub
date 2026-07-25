@@ -52,6 +52,7 @@ function Submit() {
       return;
     }
     setCover(file);
+    setCoverProgress(null);
   };
 
   const handleMediaChange = (e: React.ChangeEvent<HTMLInputElement>) => {
