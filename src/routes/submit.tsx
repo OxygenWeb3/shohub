@@ -98,23 +98,30 @@ function Submit() {
       return;
     }
     setSubmitting(true);
+    setCoverProgress(0);
+    setMediaProgress(media ? 0 : null);
     try {
       let cover_path: string;
       try {
-        ({ path: cover_path } = await uploadAsset("covers", cover));
+        ({ path: cover_path } = await uploadAsset("covers", cover, (p) =>
+          setCoverProgress(p.percent),
+        ));
       } catch (err) {
         console.error(err);
         toast.error("Cover image failed to upload to Shelby. Please try again.");
         setSubmitting(false);
+        setCoverProgress(null);
+        setMediaProgress(null);
         return;
       }
+      setCoverProgress(1);
       toast.success("Cover image uploaded to Shelby.");
       let media_path: string | null = null;
       let media_kind: "video" | "pdf" | null = null;
       if (media) {
         const kind: "video" | "pdf" = media.type.startsWith("video/") ? "video" : "pdf";
         try {
-          const up = await uploadAsset("media", media);
+          const up = await uploadAsset("media", media, (p) => setMediaProgress(p.percent));
           media_path = up.path;
           media_kind = kind;
         } catch (err) {
@@ -123,8 +130,10 @@ function Submit() {
             `${kind === "video" ? "Demo video" : "PDF"} failed to upload to Shelby. Please try again.`,
           );
           setSubmitting(false);
+          setMediaProgress(null);
           return;
         }
+        setMediaProgress(1);
         toast.success(
           `${media_kind === "video" ? "Demo video" : "PDF"} uploaded to Shelby.`,
         );
