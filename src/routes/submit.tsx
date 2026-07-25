@@ -70,6 +70,7 @@ function Submit() {
       return;
     }
     setMedia(file);
+    setMediaProgress(null);
   };
 
   const submit = async (e: React.FormEvent) => {
