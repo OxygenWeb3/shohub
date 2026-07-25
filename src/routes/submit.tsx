@@ -8,6 +8,10 @@ import { uploadAsset } from "@/lib/storage";
 import { CATEGORIES, type Category } from "@/lib/queries";
 
 const COVER_TYPES = ["image/jpeg", "image/png", "image/webp", "image/gif"];
+const MB = 1024 * 1024;
+const COVER_MAX_BYTES = 8 * MB;
+const MEDIA_MAX_BYTES = 100 * MB;
+const formatMB = (bytes: number) => `${Math.round(bytes / MB)} MB`;
 
 export const Route = createFileRoute("/submit")({
   head: () => ({
@@ -39,6 +43,12 @@ function Submit() {
       setCover(null);
       return;
     }
+    if (file && file.size > COVER_MAX_BYTES) {
+      toast.error(`Cover image is too large. Max size is ${formatMB(COVER_MAX_BYTES)}.`);
+      e.target.value = "";
+      setCover(null);
+      return;
+    }
     setCover(file);
   };
 
@@ -46,6 +56,12 @@ function Submit() {
     const file = e.target.files?.[0] ?? null;
     if (file && !file.type.startsWith("video/") && file.type !== "application/pdf") {
       toast.error("Unsupported demo file. Upload a video or PDF.");
+      e.target.value = "";
+      setMedia(null);
+      return;
+    }
+    if (file && file.size > MEDIA_MAX_BYTES) {
+      toast.error(`Demo file is too large. Max size is ${formatMB(MEDIA_MAX_BYTES)}.`);
       e.target.value = "";
       setMedia(null);
       return;
@@ -63,8 +79,16 @@ function Submit() {
       toast.error("Unsupported cover format. Use JPG, PNG, WEBP, or GIF.");
       return;
     }
+    if (cover.size > COVER_MAX_BYTES) {
+      toast.error(`Cover image is too large. Max size is ${formatMB(COVER_MAX_BYTES)}.`);
+      return;
+    }
     if (media && !media.type.startsWith("video/") && media.type !== "application/pdf") {
       toast.error("Unsupported demo file. Upload a video or PDF.");
+      return;
+    }
+    if (media && media.size > MEDIA_MAX_BYTES) {
+      toast.error(`Demo file is too large. Max size is ${formatMB(MEDIA_MAX_BYTES)}.`);
       return;
     }
     if (desc.length > 120) {
@@ -190,7 +214,7 @@ function Submit() {
               />
             </Field>
           </div>
-          <Field label="Cover image" required>
+          <Field label="Cover image" hint={`Max ${formatMB(COVER_MAX_BYTES)}`} required>
             <input
               required
               type="file"
@@ -199,7 +223,7 @@ function Submit() {
               className={fileInput}
             />
           </Field>
-          <Field label="Demo video or PDF (optional)">
+          <Field label="Demo video or PDF (optional)" hint={`Max ${formatMB(MEDIA_MAX_BYTES)}`}>
             <input
               type="file"
               accept="video/*,application/pdf"
