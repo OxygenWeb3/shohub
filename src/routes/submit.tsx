@@ -34,6 +34,8 @@ function Submit() {
   const [demo, setDemo] = useState("");
   const [cover, setCover] = useState<File | null>(null);
   const [media, setMedia] = useState<File | null>(null);
+  const [coverProgress, setCoverProgress] = useState<number | null>(null);
+  const [mediaProgress, setMediaProgress] = useState<number | null>(null);
 
   const handleCoverChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0] ?? null;
@@ -50,6 +52,7 @@ function Submit() {
       return;
     }
     setCover(file);
+    setCoverProgress(null);
   };
 
   const handleMediaChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -67,6 +70,7 @@ function Submit() {
       return;
     }
     setMedia(file);
+    setMediaProgress(null);
   };
 
   const submit = async (e: React.FormEvent) => {
@@ -96,23 +100,30 @@ function Submit() {
       return;
     }
     setSubmitting(true);
+    setCoverProgress(0);
+    setMediaProgress(media ? 0 : null);
     try {
       let cover_path: string;
       try {
-        ({ path: cover_path } = await uploadAsset("covers", cover));
+        ({ path: cover_path } = await uploadAsset("covers", cover, (p) =>
+          setCoverProgress(p.percent),
+        ));
       } catch (err) {
         console.error(err);
         toast.error("Cover image failed to upload to Shelby. Please try again.");
         setSubmitting(false);
+        setCoverProgress(null);
+        setMediaProgress(null);
         return;
       }
+      setCoverProgress(1);
       toast.success("Cover image uploaded to Shelby.");
       let media_path: string | null = null;
       let media_kind: "video" | "pdf" | null = null;
       if (media) {
         const kind: "video" | "pdf" = media.type.startsWith("video/") ? "video" : "pdf";
         try {
-          const up = await uploadAsset("media", media);
+          const up = await uploadAsset("media", media, (p) => setMediaProgress(p.percent));
           media_path = up.path;
           media_kind = kind;
         } catch (err) {
@@ -121,8 +132,10 @@ function Submit() {
             `${kind === "video" ? "Demo video" : "PDF"} failed to upload to Shelby. Please try again.`,
           );
           setSubmitting(false);
+          setMediaProgress(null);
           return;
         }
+        setMediaProgress(1);
         toast.success(
           `${media_kind === "video" ? "Demo video" : "PDF"} uploaded to Shelby.`,
         );
@@ -222,6 +235,7 @@ function Submit() {
               onChange={handleCoverChange}
               className={fileInput}
             />
+            <UploadProgress label="Cover" progress={coverProgress} />
           </Field>
           <Field label="Demo video or PDF (optional)" hint={`Max ${formatMB(MEDIA_MAX_BYTES)}`}>
             <input
@@ -230,6 +244,7 @@ function Submit() {
               onChange={handleMediaChange}
               className={fileInput}
             />
+            <UploadProgress label="Demo" progress={mediaProgress} />
           </Field>
 
           {(cover || media) && (
@@ -279,5 +294,31 @@ function Field({
       </div>
       {children}
     </label>
+  );
+}
+
+function UploadProgress({ label, progress }: { label: string; progress: number | null }) {
+  if (progress === null) return null;
+  const pct = Math.round(progress * 100);
+  const done = progress >= 1;
+  return (
+    <div className="mt-2" aria-live="polite">
+      <div className="mb-1 flex items-center justify-between text-xs text-muted-foreground">
+        <span>{done ? `${label} uploaded to Shelby` : `Uploading ${label.toLowerCase()}…`}</span>
+        <span className="tabular-nums">{pct}%</span>
+      </div>
+      <div
+        role="progressbar"
+        aria-valuemin={0}
+        aria-valuemax={100}
+        aria-valuenow={pct}
+        className="h-1.5 w-full overflow-hidden rounded-full bg-blue-100"
+      >
+        <div
+          className="h-full rounded-full bg-primary transition-[width] duration-150 ease-out"
+          style={{ width: `${pct}%` }}
+        />
+      </div>
+    </div>
   );
 }

@@ -4,6 +4,13 @@ import { supabase } from "@/integrations/supabase/client";
 
 export type Bucket = "covers" | "media";
 
+export type UploadProgress = {
+  loaded: number;
+  total: number;
+  /** 0-1 fraction; total may be 0 when unknown, in which case percent is 0. */
+  percent: number;
+};
+
 function extForFile(file: File): string {
   const fromName = file.name.split(".").pop();
   if (fromName && fromName.length <= 6) return fromName.toLowerCase();
@@ -11,15 +18,52 @@ function extForFile(file: File): string {
   return fromType;
 }
 
-export async function uploadAsset(bucket: Bucket, file: File): Promise<{ path: string }> {
+function putWithProgress(
+  url: string,
+  file: File,
+  onProgress?: (p: UploadProgress) => void,
+): Promise<void> {
+  return new Promise((resolve, reject) => {
+    const xhr = new XMLHttpRequest();
+    xhr.open("PUT", url, true);
+    if (file.type) xhr.setRequestHeader("Content-Type", file.type);
+    xhr.upload.onprogress = (evt) => {
+      if (!onProgress) return;
+      const total = evt.lengthComputable ? evt.total : file.size;
+      const loaded = evt.loaded;
+      const percent = total > 0 ? Math.min(1, loaded / total) : 0;
+      onProgress({ loaded, total, percent });
+    };
+    xhr.onerror = () => reject(new Error("Network error during upload"));
+    xhr.onabort = () => reject(new Error("Upload aborted"));
+    xhr.onload = () => {
+      if (xhr.status >= 200 && xhr.status < 300) {
+        onProgress?.({ loaded: file.size, total: file.size, percent: 1 });
+        resolve();
+      } else {
+        reject(new Error(`Upload failed (${xhr.status}): ${xhr.responseText}`));
+      }
+    };
+    xhr.send(file);
+  });
+}
+
+export async function uploadAsset(
+  bucket: Bucket,
+  file: File,
+  onProgress?: (p: UploadProgress) => void,
+): Promise<{ path: string }> {
   const ext = extForFile(file);
   const path = `${crypto.randomUUID()}.${ext}`;
-  const { error } = await supabase.storage.from(bucket).upload(path, file, {
-    cacheControl: "3600",
-    upsert: false,
-    contentType: file.type || undefined,
-  });
-  if (error) throw error;
+
+  // Use a signed upload URL so we can PUT via XHR and observe progress events.
+  const { data, error } = await supabase.storage
+    .from(bucket)
+    .createSignedUploadUrl(path);
+  if (error || !data) throw error ?? new Error("Could not create upload URL");
+
+  onProgress?.({ loaded: 0, total: file.size, percent: 0 });
+  await putWithProgress(data.signedUrl, file, onProgress);
   return { path };
 }
 
