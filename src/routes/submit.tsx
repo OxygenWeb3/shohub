@@ -37,6 +37,13 @@ function Submit() {
   const [coverProgress, setCoverProgress] = useState<number | null>(null);
   const [mediaProgress, setMediaProgress] = useState<number | null>(null);
 
+  const submitLabel =
+    coverProgress !== null && coverProgress < 1
+      ? "Uploading cover…"
+      : media && mediaProgress !== null && mediaProgress < 1
+        ? "Uploading demo…"
+        : "Publishing…";
+
   const handleCoverChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0] ?? null;
     if (file && !COVER_TYPES.includes(file.type)) {
