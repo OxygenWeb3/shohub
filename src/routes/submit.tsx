@@ -110,7 +110,9 @@ function Submit() {
         ));
       } catch (err) {
         console.error(err);
-        toast.error("Cover image failed to upload to Shelby. Please try again.");
+        toast.error("Cover image failed to upload to Shelby.", {
+          description: "Your details are saved — press Publish project to try again.",
+        });
         setSubmitting(false);
         setCoverProgress(null);
         setMediaProgress(null);
@@ -129,7 +131,11 @@ function Submit() {
         } catch (err) {
           console.error(err);
           toast.error(
-            `${kind === "video" ? "Demo video" : "PDF"} failed to upload to Shelby. Please try again.`,
+            `${kind === "video" ? "Demo video" : "PDF"} failed to upload to Shelby.`,
+            {
+              description:
+                "Your details are saved — press Publish project to retry, or choose a different file.",
+            },
           );
           setSubmitting(false);
           setMediaProgress(null);
