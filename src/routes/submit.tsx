@@ -37,6 +37,13 @@ function Submit() {
   const [coverProgress, setCoverProgress] = useState<number | null>(null);
   const [mediaProgress, setMediaProgress] = useState<number | null>(null);
 
+  const submitLabel =
+    coverProgress !== null && coverProgress < 1
+      ? "Uploading cover…"
+      : media && mediaProgress !== null && mediaProgress < 1
+        ? "Uploading demo…"
+        : "Publishing…";
+
   const handleCoverChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0] ?? null;
     if (file && !COVER_TYPES.includes(file.type)) {
@@ -262,10 +269,17 @@ function Submit() {
 
           <button
             type="submit"
-            disabled={submitting}
-            className="inline-flex w-full items-center justify-center rounded-full bg-primary px-5 py-3 text-sm font-medium text-primary-foreground shadow-sm transition-colors hover:bg-primary/90 disabled:opacity-60"
+            disabled={submitting || !cover}
+            aria-busy={submitting}
+            className="inline-flex w-full items-center justify-center gap-2 rounded-full bg-primary px-5 py-3 text-sm font-medium text-primary-foreground shadow-sm transition-colors hover:bg-primary/90 disabled:cursor-not-allowed disabled:opacity-60"
           >
-            {submitting ? "Submitting…" : "Publish project"}
+            {submitting && (
+              <span
+                aria-hidden
+                className="size-4 animate-spin rounded-full border-2 border-primary-foreground/40 border-t-primary-foreground"
+              />
+            )}
+            {submitting ? submitLabel : "Publish project"}
           </button>
         </form>
       </main>
