@@ -247,7 +247,7 @@ function Submit() {
             <UploadProgress label="Demo" progress={mediaProgress} />
           </Field>
 
-          {(cover || media) && (
+          {coverProgress === 1 && (!media || mediaProgress === 1) && (
             <div className="flex items-center gap-2 rounded-2xl bg-blue-50 px-4 py-3 text-sm text-blue-800">
               <ShelbyBadge />
               <span>Your project assets are stored on Shelby.</span>
