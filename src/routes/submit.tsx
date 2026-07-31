@@ -1,5 +1,6 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useState } from "react";
+import { useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { SiteHeader } from "@/components/SiteHeader";
 import { ShelbyBadge } from "@/components/ShelbyBadge";
@@ -25,6 +26,7 @@ export const Route = createFileRoute("/submit")({
 
 function Submit() {
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
   const [submitting, setSubmitting] = useState(false);
   const [name, setName] = useState("");
   const [builder, setBuilder] = useState("");
@@ -172,6 +174,7 @@ function Submit() {
       if (error) throw error;
       toast.success("Your project assets are stored on Shelby.");
       toast.success("Project published successfully!");
+      await queryClient.invalidateQueries({ queryKey: ["projects"] });
       navigate({ to: "/project/$id", params: { id: data.id } });
     } catch (err) {
       console.error(err);
