@@ -71,17 +71,19 @@ export function LikeButton({
   };
 
   const px = size === "sm" ? "px-2.5 py-1 text-xs" : "px-3 py-1.5 text-sm";
+  const isDisabled = liked || mutation.isPending;
 
   return (
     <button
       onClick={handle}
-      disabled={liked}
+      disabled={isDisabled}
+      aria-busy={mutation.isPending}
       aria-label="Like project"
       className={`inline-flex items-center gap-1.5 rounded-full ring-1 transition-colors ${px} ${
         liked
           ? "bg-red-50 text-red-600 ring-red-200"
           : "bg-white text-foreground ring-border hover:bg-red-50 hover:text-red-600 hover:ring-red-200"
-      }`}
+      } ${isDisabled ? "cursor-not-allowed" : ""} ${mutation.isPending ? "opacity-70" : ""}`}
     >
       <Heart className={`h-4 w-4 ${liked ? "fill-current" : ""}`} />
       <span className="font-medium tabular-nums">{count}</span>
