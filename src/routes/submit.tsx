@@ -172,6 +172,7 @@ function Submit() {
       if (error) throw error;
       toast.success("Your project assets are stored on Shelby.");
       toast.success("Project published successfully!");
+      await queryClient.invalidateQueries({ queryKey: ["projects"] });
       navigate({ to: "/project/$id", params: { id: data.id } });
     } catch (err) {
       console.error(err);
