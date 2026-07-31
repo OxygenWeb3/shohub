@@ -25,6 +25,7 @@ export const Route = createFileRoute("/submit")({
 
 function Submit() {
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
   const [submitting, setSubmitting] = useState(false);
   const [name, setName] = useState("");
   const [builder, setBuilder] = useState("");
