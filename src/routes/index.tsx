@@ -104,12 +104,39 @@ function Home() {
           {isLoading ? (
             <div className="py-16 text-center text-sm text-muted-foreground">Loading…</div>
           ) : projects.length === 0 ? (
-            <div className="rounded-2xl border border-dashed border-border bg-white py-16 text-center">
-              <p className="text-base font-medium">No projects yet</p>
-              <p className="mt-1 text-sm text-muted-foreground">
-                Be the first to share what you're building.
-              </p>
-            </div>
+            search.trim() !== "" || category !== "All" ? (
+              <div className="rounded-2xl border border-dashed border-border bg-white py-16 text-center">
+                <p className="text-base font-medium">No matching projects</p>
+                <p className="mt-1 text-sm text-muted-foreground">
+                  {search.trim() !== "" ? (
+                    <>
+                      Nothing matches “{search.trim()}”
+                      {category !== "All" ? ` in ${category}` : ""}.
+                    </>
+                  ) : (
+                    <>No projects in {category} yet.</>
+                  )}{" "}
+                  Try a different search or filter.
+                </p>
+                <button
+                  onClick={() => {
+                    setSearch("");
+                    setCategory("All");
+                  }}
+                  className="mt-4 inline-flex items-center rounded-full bg-primary px-4 py-2 text-sm font-medium text-primary-foreground shadow-sm transition-colors hover:bg-primary/90"
+                >
+                  Clear filters
+                </button>
+              </div>
+            ) : (
+              <div className="rounded-2xl border border-dashed border-border bg-white py-16 text-center">
+                <p className="text-base font-medium">No projects yet</p>
+                <p className="mt-1 text-sm text-muted-foreground">
+                  Be the first to share what you're building.
+                </p>
+              </div>
+            )
+
           ) : (
             <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
               {projects.map((p) => (
