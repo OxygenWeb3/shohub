@@ -14,6 +14,15 @@ const COVER_MAX_BYTES = 8 * MB;
 const MEDIA_MAX_BYTES = 100 * MB;
 const formatMB = (bytes: number) => `${Math.round(bytes / MB)} MB`;
 
+const isValidHttpUrl = (value: string) => {
+  try {
+    const url = new URL(value);
+    return url.protocol === "http:" || url.protocol === "https:";
+  } catch {
+    return false;
+  }
+};
+
 export const Route = createFileRoute("/submit")({
   head: () => ({
     meta: [
@@ -84,6 +93,38 @@ function Submit() {
 
   const submit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!name.trim()) {
+      toast.error("Project name is required.");
+      return;
+    }
+    if (name.trim().length > 80) {
+      toast.error("Project name must be 80 characters or fewer.");
+      return;
+    }
+    if (!builder.trim()) {
+      toast.error("Builder name is required.");
+      return;
+    }
+    if (builder.trim().length > 60) {
+      toast.error("Builder name must be 60 characters or fewer.");
+      return;
+    }
+    if (!desc.trim()) {
+      toast.error("Description is required.");
+      return;
+    }
+    if (!CATEGORIES.includes(category)) {
+      toast.error("Please choose a category.");
+      return;
+    }
+    if (github.trim() && !isValidHttpUrl(github.trim())) {
+      toast.error("GitHub URL must be a valid http(s) link.");
+      return;
+    }
+    if (demo.trim() && !isValidHttpUrl(demo.trim())) {
+      toast.error("Demo URL must be a valid http(s) link.");
+      return;
+    }
     if (!cover) {
       toast.error("Please upload a cover image.");
       return;
