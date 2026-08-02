@@ -21,15 +21,18 @@ export type Project = {
 
 export type Sort = "newest" | "most_liked";
 
+export const PAGE_SIZE = 9;
+
 export const projectsQueryOptions = (params: {
   search: string;
   category: Category | "All";
   sort: Sort;
+  page: number;
 }) =>
   queryOptions({
     queryKey: ["projects", params],
-    queryFn: async (): Promise<Project[]> => {
-      let q = supabase.from("projects").select("*");
+    queryFn: async (): Promise<{ items: Project[]; total: number }> => {
+      let q = supabase.from("projects").select("*", { count: "exact" });
       if (params.category !== "All") q = q.eq("category", params.category);
       if (params.search.trim()) {
         const s = `%${params.search.trim()}%`;
@@ -39,11 +42,13 @@ export const projectsQueryOptions = (params: {
         params.sort === "most_liked"
           ? q.order("likes_count", { ascending: false }).order("created_at", { ascending: false })
           : q.order("created_at", { ascending: false });
-      const { data, error } = await q;
+      const from = (params.page - 1) * PAGE_SIZE;
+      const { data, error, count } = await q.range(from, from + PAGE_SIZE - 1);
       if (error) throw error;
-      return (data ?? []) as Project[];
+      return { items: (data ?? []) as Project[], total: count ?? 0 };
     },
   });
+
 
 export const newestProjectsQueryOptions = () =>
   queryOptions({

@@ -6,12 +6,14 @@ import { SiteHeader } from "@/components/SiteHeader";
 import { ProjectCard } from "@/components/ProjectCard";
 import {
   CATEGORIES,
+  PAGE_SIZE,
   newestProjectsQueryOptions,
   projectCountQueryOptions,
   projectsQueryOptions,
   type Category,
   type Sort,
 } from "@/lib/queries";
+
 
 export const Route = createFileRoute("/")({
   component: Home,
@@ -21,12 +23,30 @@ function Home() {
   const [search, setSearch] = useState("");
   const [category, setCategory] = useState<Category | "All">("All");
   const [sort, setSort] = useState<Sort>("newest");
+  const [page, setPage] = useState(1);
 
-  const params = useMemo(() => ({ search, category, sort }), [search, category, sort]);
+  const params = useMemo(() => ({ search, category, sort, page }), [search, category, sort, page]);
 
-  const { data: projects = [], isLoading } = useQuery(projectsQueryOptions(params));
+  const { data, isLoading } = useQuery(projectsQueryOptions(params));
+  const projects = data?.items ?? [];
+  const matched = data?.total ?? 0;
+  const pageCount = Math.max(1, Math.ceil(matched / PAGE_SIZE));
   const { data: newest = [] } = useQuery(newestProjectsQueryOptions());
   const { data: total = 0 } = useQuery(projectCountQueryOptions());
+
+  const updateSearch = (value: string) => {
+    setSearch(value);
+    setPage(1);
+  };
+  const updateCategory = (value: Category | "All") => {
+    setCategory(value);
+    setPage(1);
+  };
+  const updateSort = (value: Sort) => {
+    setSort(value);
+    setPage(1);
+  };
+
 
   return (
     <div className="min-h-screen bg-background">
@@ -68,7 +88,7 @@ function Home() {
               <input
                 type="search"
                 value={search}
-                onChange={(e) => setSearch(e.target.value)}
+                onChange={(e) => updateSearch(e.target.value)}
                 placeholder="Search projects, builders, or ideas…"
                 className="w-full rounded-full border border-border bg-white py-3 pl-11 pr-4 text-sm shadow-sm outline-none transition-shadow focus:ring-2 focus:ring-primary/30"
               />
@@ -79,7 +99,7 @@ function Home() {
                 {(["All", ...CATEGORIES] as const).map((c) => (
                   <button
                     key={c}
-                    onClick={() => setCategory(c as Category | "All")}
+                    onClick={() => updateCategory(c as Category | "All")}
                     className={`rounded-full px-3.5 py-1.5 text-sm font-medium ring-1 transition-colors ${
                       category === c
                         ? "bg-primary text-primary-foreground ring-primary"
@@ -92,7 +112,7 @@ function Home() {
               </div>
               <select
                 value={sort}
-                onChange={(e) => setSort(e.target.value as Sort)}
+                onChange={(e) => updateSort(e.target.value as Sort)}
                 className="rounded-full border border-border bg-white px-3.5 py-1.5 text-sm font-medium shadow-sm outline-none focus:ring-2 focus:ring-primary/30"
               >
                 <option value="newest">Newest</option>
@@ -120,9 +140,10 @@ function Home() {
                 </p>
                 <button
                   onClick={() => {
-                    setSearch("");
-                    setCategory("All");
+                    updateSearch("");
+                    updateCategory("All");
                   }}
+
                   className="mt-4 inline-flex items-center rounded-full bg-primary px-4 py-2 text-sm font-medium text-primary-foreground shadow-sm transition-colors hover:bg-primary/90"
                 >
                   Clear filters
@@ -138,12 +159,56 @@ function Home() {
             )
 
           ) : (
-            <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-              {projects.map((p) => (
-                <ProjectCard key={p.id} project={p} />
-              ))}
-            </div>
+            <>
+              <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+                {projects.map((p) => (
+                  <ProjectCard key={p.id} project={p} />
+                ))}
+              </div>
+
+              {pageCount > 1 && (
+                <nav
+                  aria-label="Pagination"
+                  className="mt-10 flex flex-wrap items-center justify-center gap-2"
+                >
+                  <button
+                    onClick={() => setPage((p) => Math.max(1, p - 1))}
+                    disabled={page === 1}
+                    className="rounded-full border border-border bg-white px-4 py-2 text-sm font-medium shadow-sm transition-colors hover:bg-blue-50 disabled:cursor-not-allowed disabled:opacity-50"
+                  >
+                    Previous
+                  </button>
+                  {Array.from({ length: pageCount }, (_, i) => i + 1).map((n) => (
+                    <button
+                      key={n}
+                      onClick={() => setPage(n)}
+                      aria-current={n === page ? "page" : undefined}
+                      className={`min-w-9 rounded-full px-3 py-2 text-sm font-medium ring-1 transition-colors ${
+                        n === page
+                          ? "bg-primary text-primary-foreground ring-primary"
+                          : "bg-white text-foreground ring-border hover:bg-blue-50"
+                      }`}
+                    >
+                      {n}
+                    </button>
+                  ))}
+                  <button
+                    onClick={() => setPage((p) => Math.min(pageCount, p + 1))}
+                    disabled={page === pageCount}
+                    className="rounded-full border border-border bg-white px-4 py-2 text-sm font-medium shadow-sm transition-colors hover:bg-blue-50 disabled:cursor-not-allowed disabled:opacity-50"
+                  >
+                    Next
+                  </button>
+                </nav>
+              )}
+
+              <p className="mt-4 text-center text-xs text-muted-foreground">
+                Showing {(page - 1) * PAGE_SIZE + 1}–{(page - 1) * PAGE_SIZE + projects.length} of{" "}
+                {matched} {matched === 1 ? "project" : "projects"}
+              </p>
+            </>
           )}
+
         </section>
       </main>
 
