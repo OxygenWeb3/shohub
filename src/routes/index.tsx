@@ -6,12 +6,14 @@ import { SiteHeader } from "@/components/SiteHeader";
 import { ProjectCard } from "@/components/ProjectCard";
 import {
   CATEGORIES,
+  PAGE_SIZE,
   newestProjectsQueryOptions,
   projectCountQueryOptions,
   projectsQueryOptions,
   type Category,
   type Sort,
 } from "@/lib/queries";
+
 
 export const Route = createFileRoute("/")({
   component: Home,
@@ -21,12 +23,30 @@ function Home() {
   const [search, setSearch] = useState("");
   const [category, setCategory] = useState<Category | "All">("All");
   const [sort, setSort] = useState<Sort>("newest");
+  const [page, setPage] = useState(1);
 
-  const params = useMemo(() => ({ search, category, sort }), [search, category, sort]);
+  const params = useMemo(() => ({ search, category, sort, page }), [search, category, sort, page]);
 
-  const { data: projects = [], isLoading } = useQuery(projectsQueryOptions(params));
+  const { data, isLoading } = useQuery(projectsQueryOptions(params));
+  const projects = data?.items ?? [];
+  const matched = data?.total ?? 0;
+  const pageCount = Math.max(1, Math.ceil(matched / PAGE_SIZE));
   const { data: newest = [] } = useQuery(newestProjectsQueryOptions());
   const { data: total = 0 } = useQuery(projectCountQueryOptions());
+
+  const updateSearch = (value: string) => {
+    setSearch(value);
+    setPage(1);
+  };
+  const updateCategory = (value: Category | "All") => {
+    setCategory(value);
+    setPage(1);
+  };
+  const updateSort = (value: Sort) => {
+    setSort(value);
+    setPage(1);
+  };
+
 
   return (
     <div className="min-h-screen bg-background">
