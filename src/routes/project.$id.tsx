@@ -2,13 +2,14 @@ import { createFileRoute, Link, notFound } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { useCallback } from "react";
 import { toast } from "sonner";
-import { ArrowLeft, Github, ExternalLink } from "lucide-react";
+import { ArrowLeft, Copy, Github, ExternalLink } from "lucide-react";
 import { SiteHeader } from "@/components/SiteHeader";
 import { AssetImage } from "@/components/AssetImage";
 import { CategoryChip } from "@/components/CategoryChip";
 import { LikeButton } from "@/components/LikeButton";
 import { MediaViewer } from "@/components/MediaViewer";
 import { ShelbyBadge } from "@/components/ShelbyBadge";
+import { Button } from "@/components/ui/button";
 import { projectQueryOptions } from "@/lib/queries";
 
 export const Route = createFileRoute("/project/$id")({
@@ -27,6 +28,15 @@ function ProjectDetails() {
 
   const handleCoverError = useCallback(() => {
     toast.error("Cover image failed to load from Shelby.");
+  }, []);
+
+  const handleCopyLink = useCallback(async () => {
+    try {
+      await navigator.clipboard.writeText(window.location.href);
+      toast.success("Project link copied.");
+    } catch {
+      toast.error("Couldn’t copy the project link.");
+    }
   }, []);
 
   if (isLoading) {
@@ -69,7 +79,12 @@ function ProjectDetails() {
               by <span className="font-medium text-foreground">{project.builder_name}</span>
             </p>
           </div>
-          <LikeButton projectId={project.id} count={project.likes_count} />
+          <div className="flex items-center gap-2">
+            <Button type="button" variant="outline" onClick={handleCopyLink}>
+              <Copy aria-hidden="true" /> Copy link
+            </Button>
+            <LikeButton projectId={project.id} count={project.likes_count} />
+          </div>
         </div>
 
         <p className="mt-6 text-lg leading-relaxed text-foreground">{project.description}</p>
