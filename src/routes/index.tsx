@@ -1,5 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Search } from "lucide-react";
 import { SiteHeader } from "@/components/SiteHeader";
@@ -33,6 +33,10 @@ function Home() {
   const pageCount = Math.max(1, Math.ceil(matched / PAGE_SIZE));
   const { data: newest = [] } = useQuery(newestProjectsQueryOptions());
   const { data: total = 0 } = useQuery(projectCountQueryOptions());
+
+  useEffect(() => {
+    if (page > pageCount) setPage(pageCount);
+  }, [page, pageCount]);
 
   const updateSearch = (value: string) => {
     setSearch(value);
