@@ -1,9 +1,10 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { Search } from "lucide-react";
+import { Search, SearchX } from "lucide-react";
 import { SiteHeader } from "@/components/SiteHeader";
 import { ProjectCard } from "@/components/ProjectCard";
+import { Button } from "@/components/ui/button";
 import {
   CATEGORIES,
   PAGE_SIZE,
@@ -14,9 +15,24 @@ import {
   type Sort,
 } from "@/lib/queries";
 
-
 export const Route = createFileRoute("/")({
   component: Home,
+  head: () => ({
+    meta: [
+      { title: "Shelby Showcase — Community Projects" },
+      {
+        name: "description",
+        content: "Explore projects built by the Shelby community with media powered by decentralized hot storage.",
+      },
+      { property: "og:title", content: "Shelby Showcase — Community Projects" },
+      {
+        property: "og:description",
+        content: "Explore projects built by the Shelby community with media powered by decentralized hot storage.",
+      },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary" },
+    ],
+  }),
 });
 
 function Home() {
