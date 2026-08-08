@@ -3,7 +3,7 @@ import { Heart } from "lucide-react";
 import { useMutation, useQueryClient, type QueryKey } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
-import { getVisitorId, hasLiked, markLiked } from "@/lib/likes";
+import { getVisitorId, hasLiked, markLiked, unmarkLiked } from "@/lib/likes";
 import { Button } from "@/components/ui/button";
 
 type MaybeProject = { id: string; likes_count: number };
@@ -51,48 +51,65 @@ export function LikeButton({
     );
   };
 
-  const mutation = useMutation<boolean, Error, void, LikeMutationContext>({
-    mutationFn: async () => {
+  const mutation = useMutation<boolean, Error, boolean, LikeMutationContext>({
+    mutationFn: async (nextLiked) => {
       const visitor_id = getVisitorId();
+      if (nextLiked) {
+        const { error } = await supabase
+          .from("project_likes")
+          .insert({ project_id: projectId, visitor_id });
+        if (error && error.code !== "23505") throw error;
+        return !error;
+      }
       const { error } = await supabase
         .from("project_likes")
-        .insert({ project_id: projectId, visitor_id });
-      if (error && error.code !== "23505") throw error;
-      return !error;
+        .delete()
+        .eq("project_id", projectId)
+        .eq("visitor_id", visitor_id);
+      if (error) throw error;
+      return true;
     },
-    onMutate: () => {
+    onMutate: (nextLiked) => {
       const previous = qc.getQueriesData({ queryKey: ["projects"] });
-      setLiked(true);
-      patchCaches(1);
+      setLiked(nextLiked);
+      patchCaches(nextLiked ? 1 : -1);
       return { previous };
     },
-    onSuccess: (inserted, _variables, context) => {
-      markLiked(projectId);
-      if (!inserted) {
-        context?.previous.forEach(([queryKey, data]) => qc.setQueryData(queryKey, data));
-        toast.success("You already liked this project.");
+    onSuccess: (changed, nextLiked, context) => {
+      if (nextLiked) {
+        markLiked(projectId);
+        if (!changed) {
+          context?.previous.forEach(([queryKey, data]) => qc.setQueryData(queryKey, data));
+          toast.success("You already liked this project.");
+        } else {
+          toast.success("Thanks for the like!");
+        }
       } else {
-        toast.success("Thanks for the like!");
+        unmarkLiked(projectId);
+        toast.success("Like removed.");
       }
       void qc.invalidateQueries({ queryKey: ["projects"] });
     },
-    onError: (_error, _variables, context) => {
+    onError: (_error, nextLiked, context) => {
       context?.previous.forEach(([queryKey, data]) => qc.setQueryData(queryKey, data));
-      setLiked(false);
-      toast.error("Couldn't save your like. Please try again.");
+      setLiked(!nextLiked);
+      toast.error(
+        nextLiked ? "Couldn't save your like. Please try again." : "Couldn't remove your like. Please try again.",
+      );
     },
   });
 
   const handle = (e: MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
-    if (liked || mutation.isPending) return;
-    mutation.mutate();
+    if (mutation.isPending) return;
+    mutation.mutate(!liked);
   };
 
   const isPending = mutation.isPending;
-  const isDisabled = liked || isPending;
+  const isDisabled = isPending;
   const label = isPending ? "Saving…" : liked ? "Liked" : "Like";
+
   const px = size === "sm" ? "px-2.5 py-1 text-xs" : "px-3 py-1.5 text-sm";
 
   return (

@@ -26,6 +26,12 @@ export function markLiked(projectId: string) {
   localStorage.setItem(LIKED_KEY, JSON.stringify([...set]));
 }
 
+export function unmarkLiked(projectId: string) {
+  const set = getLikedSet();
+  set.delete(projectId);
+  localStorage.setItem(LIKED_KEY, JSON.stringify([...set]));
+}
+
 export function hasLiked(projectId: string): boolean {
   return getLikedSet().has(projectId);
 }
