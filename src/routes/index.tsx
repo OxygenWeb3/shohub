@@ -150,40 +150,26 @@ function Home() {
           {isLoading ? (
             <div className="py-16 text-center text-sm text-muted-foreground">Loading…</div>
           ) : projects.length === 0 ? (
-            search.trim() !== "" || category !== "All" ? (
-              <div className="rounded-2xl border border-dashed border-border bg-white py-16 text-center">
-                <p className="text-base font-medium">No matching projects</p>
-                <p className="mt-1 text-sm text-muted-foreground">
-                  {search.trim() !== "" ? (
-                    <>
-                      Nothing matches “{search.trim()}”
-                      {category !== "All" ? ` in ${category}` : ""}.
-                    </>
-                  ) : (
-                    <>No projects in {category} yet.</>
-                  )}{" "}
-                  Try a different search or filter.
-                </p>
-                <button
-                  onClick={() => {
-                    updateSearch("");
-                    updateCategory("All");
-                  }}
-
-                  className="mt-4 inline-flex items-center rounded-full bg-primary px-4 py-2 text-sm font-medium text-primary-foreground shadow-sm transition-colors hover:bg-primary/90"
-                >
-                  Clear filters
-                </button>
+            <div className="rounded-2xl border border-dashed border-border bg-card px-6 py-16 text-center shadow-sm">
+              <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-primary/10 text-primary">
+                <SearchX aria-hidden="true" className="h-6 w-6" />
               </div>
-            ) : (
-              <div className="rounded-2xl border border-dashed border-border bg-white py-16 text-center">
-                <p className="text-base font-medium">No projects yet</p>
-                <p className="mt-1 text-sm text-muted-foreground">
-                  Be the first to share what you're building.
-                </p>
-              </div>
-            )
-
+              <h2 className="mt-5 text-lg font-semibold text-foreground">No projects found</h2>
+              <p className="mx-auto mt-2 max-w-md text-sm leading-6 text-muted-foreground">
+                {search.trim() ? (
+                  <>We couldn’t find anything for “{search.trim()}”.</>
+                ) : category !== "All" ? (
+                  <>There aren’t any {category} projects here yet.</>
+                ) : (
+                  <>There aren’t any projects to show here yet.</>
+                )}{" "}
+                Try a different search or browse the full showcase.
+              </p>
+              <Button type="button" className="mt-6" onClick={resetBrowse}>
+                <Search aria-hidden="true" />
+                Browse all projects
+              </Button>
+            </div>
           ) : (
             <>
               <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
