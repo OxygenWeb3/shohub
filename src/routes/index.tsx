@@ -67,6 +67,12 @@ function Home() {
     setPage(1);
   };
 
+  const resetBrowse = () => {
+    setSearch("");
+    setCategory("All");
+    setSort("newest");
+    setPage(1);
+  };
 
   return (
     <div className="min-h-screen bg-background">
