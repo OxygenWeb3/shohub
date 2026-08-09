@@ -7,6 +7,8 @@ import { ShelbyBadge } from "@/components/ShelbyBadge";
 import { supabase } from "@/integrations/supabase/client";
 import { uploadAsset } from "@/lib/storage";
 import { CATEGORIES, type Category } from "@/lib/queries";
+import { projectSlug } from "@/lib/slug";
+
 
 const COVER_TYPES = ["image/jpeg", "image/png", "image/webp", "image/gif"];
 const MB = 1024 * 1024;
