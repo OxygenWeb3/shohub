@@ -1,5 +1,6 @@
 import { Link } from "@tanstack/react-router";
 import type { Project } from "@/lib/queries";
+import { projectSlug } from "@/lib/slug";
 import { AssetImage } from "./AssetImage";
 import { CategoryChip } from "./CategoryChip";
 import { LikeButton } from "./LikeButton";
@@ -8,7 +9,8 @@ export function ProjectCard({ project }: { project: Project }) {
   return (
     <Link
       to="/project/$id"
-      params={{ id: project.id }}
+      params={{ id: projectSlug(project) }}
+
       className="group flex flex-col overflow-hidden rounded-2xl border border-border bg-card shadow-sm transition-all hover:-translate-y-0.5 hover:shadow-md"
     >
       <AssetImage
