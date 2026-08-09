@@ -1,6 +1,6 @@
-import { createFileRoute, Link, notFound } from "@tanstack/react-router";
+import { createFileRoute, Link, notFound, useNavigate } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
-import { useCallback } from "react";
+import { useCallback, useEffect } from "react";
 import { toast } from "sonner";
 import { ArrowLeft, Copy, Github, ExternalLink } from "lucide-react";
 import { SiteHeader } from "@/components/SiteHeader";
@@ -11,20 +11,43 @@ import { MediaViewer } from "@/components/MediaViewer";
 import { ShelbyBadge } from "@/components/ShelbyBadge";
 import { Button } from "@/components/ui/button";
 import { projectQueryOptions } from "@/lib/queries";
+import { extractProjectId, projectSlug, titleFromSlug } from "@/lib/slug";
 
 export const Route = createFileRoute("/project/$id")({
   component: ProjectDetails,
-  head: ({ params }) => ({
-    meta: [
-      { title: `Project — Shelby Showcase` },
-      { name: "description", content: `A project on Shelby Showcase (${params.id}).` },
-    ],
-  }),
+  head: ({ params }) => {
+    const name = titleFromSlug(params.id);
+    const title = name ? `${name} — Shelby Showcase` : "Project — Shelby Showcase";
+    const description = name
+      ? `${name} — a builder project served via Shelby decentralized hot storage.`
+      : "A builder project served via Shelby decentralized hot storage.";
+    return {
+      meta: [
+        { title },
+        { name: "description", content: description },
+        { property: "og:title", content: title },
+        { property: "og:description", content: description },
+        { property: "og:type", content: "article" },
+        { name: "twitter:card", content: "summary_large_image" },
+      ],
+    };
+  },
 });
 
 function ProjectDetails() {
-  const { id } = Route.useParams();
+  const { id: param } = Route.useParams();
+  const id = extractProjectId(param);
+  const navigate = useNavigate();
   const { data: project, isLoading, error } = useQuery(projectQueryOptions(id));
+
+  // Normalize the URL to the canonical, shareable slug form.
+  useEffect(() => {
+    if (!project) return;
+    const canonical = projectSlug(project);
+    if (canonical !== param) {
+      navigate({ to: "/project/$id", params: { id: canonical }, replace: true });
+    }
+  }, [project, param, navigate]);
 
   const handleCoverError = useCallback(() => {
     toast.error("Cover image failed to load from Shelby.");
@@ -48,6 +71,7 @@ function ProjectDetails() {
     );
   }
   if (error || !project) throw notFound();
+
 
   return (
     <div className="min-h-screen bg-background">

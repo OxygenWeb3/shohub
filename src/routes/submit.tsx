@@ -7,6 +7,8 @@ import { ShelbyBadge } from "@/components/ShelbyBadge";
 import { supabase } from "@/integrations/supabase/client";
 import { uploadAsset } from "@/lib/storage";
 import { CATEGORIES, type Category } from "@/lib/queries";
+import { projectSlug } from "@/lib/slug";
+
 
 const COVER_TYPES = ["image/jpeg", "image/png", "image/webp", "image/gif"];
 const MB = 1024 * 1024;
@@ -210,13 +212,14 @@ function Submit() {
           media_path,
           media_kind,
         })
-        .select("id")
+        .select("id, name")
         .single();
       if (error) throw error;
       toast.success("Your project assets are stored on Shelby.");
       toast.success("Project published successfully!");
       await queryClient.invalidateQueries({ queryKey: ["projects"] });
-      navigate({ to: "/project/$id", params: { id: data.id } });
+      navigate({ to: "/project/$id", params: { id: projectSlug(data) } });
+
     } catch (err) {
       console.error(err);
       toast.error("Failed to publish project. Please try again.");
