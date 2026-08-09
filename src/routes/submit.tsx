@@ -210,13 +210,14 @@ function Submit() {
           media_path,
           media_kind,
         })
-        .select("id")
+        .select("id, name")
         .single();
       if (error) throw error;
       toast.success("Your project assets are stored on Shelby.");
       toast.success("Project published successfully!");
       await queryClient.invalidateQueries({ queryKey: ["projects"] });
-      navigate({ to: "/project/$id", params: { id: data.id } });
+      navigate({ to: "/project/$id", params: { id: projectSlug(data) } });
+
     } catch (err) {
       console.error(err);
       toast.error("Failed to publish project. Please try again.");
