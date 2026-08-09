@@ -121,7 +121,7 @@ function Home() {
             </div>
 
             <div className="flex flex-wrap items-center justify-between gap-3">
-              <div className="flex flex-wrap gap-2">
+              <div className="flex flex-wrap items-center gap-2">
                 {(["All", ...CATEGORIES] as const).map((c) => (
                   <button
                     key={c}
@@ -136,14 +136,19 @@ function Home() {
                   </button>
                 ))}
               </div>
-              <select
-                value={sort}
-                onChange={(e) => updateSort(e.target.value as Sort)}
-                className="rounded-full border border-border bg-white px-3.5 py-1.5 text-sm font-medium shadow-sm outline-none focus:ring-2 focus:ring-primary/30"
-              >
-                <option value="newest">Newest</option>
-                <option value="most_liked">Most liked</option>
-              </select>
+              <div className="flex items-center gap-3">
+                <p className="text-sm font-medium text-muted-foreground" aria-live="polite">
+                  {total} {total === 1 ? "project" : "projects"}
+                </p>
+                <select
+                  value={sort}
+                  onChange={(e) => updateSort(e.target.value as Sort)}
+                  className="rounded-full border border-border bg-white px-3.5 py-1.5 text-sm font-medium shadow-sm outline-none focus:ring-2 focus:ring-primary/30"
+                >
+                  <option value="newest">Newest</option>
+                  <option value="most_liked">Most liked</option>
+                </select>
+              </div>
             </div>
           </div>
 
