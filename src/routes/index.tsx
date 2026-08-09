@@ -93,10 +93,13 @@ function Home() {
         </section>
 
         {newest.length > 0 && (
-          <section className="mb-12">
+          <section className="mb-12" aria-labelledby="newest-projects-heading">
             <div className="mb-4 flex items-baseline justify-between">
-              <h2 className="text-sm font-semibold uppercase tracking-wider text-muted-foreground">
-                Newest projects
+              <h2
+                id="newest-projects-heading"
+                className="text-sm font-semibold uppercase tracking-wider text-muted-foreground"
+              >
+                Newest Projects
               </h2>
             </div>
             <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
